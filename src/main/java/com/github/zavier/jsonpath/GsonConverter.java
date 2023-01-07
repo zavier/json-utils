@@ -1,4 +1,4 @@
-package com.github.zavier.json;
+package com.github.zavier.jsonpath;
 
 import com.google.gson.*;
 import com.jayway.jsonpath.JsonPath;
