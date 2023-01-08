@@ -1,5 +1,6 @@
 package com.github.zavier.jsonpath
 
+import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.gson.Gson
 import com.google.gson.JsonParser
@@ -37,6 +38,15 @@ class JsonConverterSpec extends Specification {
         paramMap()[1]['srcDataStr'] | paramMap()[1]['path'] | paramMap()[1]['result']
     }
 
+    def "json2java"() {
+        given:
+        def objectMapper = new ObjectMapper()
+        when:
+        def result = new JacksonConverter().toJson(objectMapper.readTree(paramMap()[1]['path']), paramMap()[1]['srcDataStr'])
+        new JacksonConverter().generateJavaFile(result.toString())
+        then:
+        1 == 1
+    }
 
     def paramMap() {
         def map = [:]

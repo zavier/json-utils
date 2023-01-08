@@ -5,9 +5,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.jayway.jsonpath.JsonPath;
+import com.sun.codemodel.JCodeModel;
+import org.jsonschema2pojo.*;
+import org.jsonschema2pojo.rules.RuleFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -53,5 +58,35 @@ public class JacksonConverter {
         }
 
         return node;
+    }
+
+    public void generateJavaFile(String json) {
+        try {
+            convertJsonToJavaClass(json, new File("."), "com.github.zavier", "DemoJson");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void convertJsonToJavaClass(String json, File outputJavaClassDirectory, String packageName, String javaClassName)
+            throws IOException {
+        JCodeModel jcodeModel = new JCodeModel();
+
+        GenerationConfig config = new DefaultGenerationConfig() {
+            @Override
+            public boolean isGenerateBuilders() {
+                return true;
+            }
+
+            @Override
+            public SourceType getSourceType() {
+                return SourceType.JSON;
+            }
+        };
+
+        SchemaMapper mapper = new SchemaMapper(new RuleFactory(config, new Jackson2Annotator(config), new SchemaStore()), new SchemaGenerator());
+        mapper.generate(jcodeModel, javaClassName, packageName, json);
+
+        jcodeModel.build(outputJavaClassDirectory);
     }
 }
